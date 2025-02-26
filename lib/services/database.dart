@@ -40,10 +40,20 @@ class DatabaseMethods {
   }
 
   Future<QuerySnapshot> Search(String username) async {
+    // ปรับเป็นการค้นหาแบบไม่ต้องตรงทั้งหมด
     return await FirebaseFirestore.instance
         .collection("users")
-        .where("SearchKey", isEqualTo: username.substring(0, 1).toUpperCase())
-        .where("role", whereIn: ["user", "sitter"]).get();
+        .orderBy("username")
+        .startAt([username.toLowerCase()]).endAt(
+            [username.toLowerCase() + '\uf8ff']).get();
+  }
+
+  Future<QuerySnapshot> SearchAlternative(String searchTerm) async {
+    return await FirebaseFirestore.instance
+        .collection("users")
+        .where("username", isGreaterThanOrEqualTo: searchTerm)
+        .where("username", isLessThanOrEqualTo: searchTerm + '\uf8ff')
+        .get();
   }
 
   createChatRoom(
